@@ -4,8 +4,8 @@ from RiverForecast import RiverForecast
 class River:
     #Predefined const for different Rivers:
     RIVER_CONSTANTS={
-        'Galchi':{'distance':30000,'a':174.033420951409,'b':1.23635884471447,'c':365.6,'vel_a':0.002,'vel_b':1.142},
-        'Budhi':{'distance':18500,'a':417.1536,'b':0.36303508,'c':333.40,'vel_a':0.002851381701,'vel_b':0.646},
+        'Galchi':{'distance':30000,'a':174.033420951409,'b':1.23635884471447,'c':365.6,'vel_a':1.725,'vel_b':628.5},
+        'Budhi':{'distance':18500,'a':417.1536,'b':0.36303508,'c':333.40,'vel_a':6.533,'vel_b':2176},
     }
     def __init__(self,river_name,date_time,water_level):
         self.river_name=river_name
@@ -47,7 +47,7 @@ class River:
     def set_mean_velocity(self):
         vel_a = self.constants['vel_a']
         vel_b=self.constants['vel_b']
-        self.mean_velocity= vel_a*self.discharge+vel_b
+        self.mean_velocity= vel_a*self.water_level-vel_b
         
     def get_mean_velocity(self):
         return self.mean_velocity
