@@ -1,6 +1,5 @@
-from Database import Database
 from dotenv import load_dotenv
-
+from Database import Database
 load_dotenv()
 
 galchi_table = 'Forecast_Galchi_To_Siurenitar'
@@ -29,8 +28,5 @@ db.execute_query(f'''
     );
 
 ''')
-
-    
-
 
 db.disconnect()

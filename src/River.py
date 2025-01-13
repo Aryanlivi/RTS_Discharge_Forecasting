@@ -1,6 +1,6 @@
 import math 
 from datetime import datetime,timedelta
-
+from RiverForecast import RiverForecast
 class River:
     #Predefined const for different Rivers:
     RIVER_CONSTANTS={
@@ -88,10 +88,7 @@ class River:
             
             forecasted_datetime = self.date_time + timedelta(seconds=self.time_delay)
             forecasted_datetime=self.round_to_nearest_5_minutes(forecasted_datetime)
-            self.forecasted_data={
-                'datetime':forecasted_datetime.strftime('%Y-%m-%d %H:%M'),#Convert Back to String
-                'discharge':self.discharge
-            }
+            self.forecasted_data=RiverForecast(self.river_name,forecasted_datetime,self.discharge)
             return self.forecasted_data
     
         

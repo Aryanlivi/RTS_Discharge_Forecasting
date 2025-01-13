@@ -1,7 +1,12 @@
 import psycopg2
+import sys
 import os
+
+# Add the parent directory to the system path to allow imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from dotenv import load_dotenv
-from .Loggers import *
+from DB_Service.Loggers import *
 from datetime import datetime
 
 load_dotenv()
@@ -32,16 +37,19 @@ class Database:
         except Exception as e:
             logger.error(f"Error connecting to the database: {e}")
             return None
-    def execute_query(self,query):
+    def execute_query(self, query):
         if self.connection:
             try:
                 self.cursor = self.connection.cursor()
                 self.cursor.execute(query)
                 self.connection.commit()
                 logger.info(f"Query executed successfully: {query}")
-                self.cursor.close()
             except Exception as e:
+                self.connection.rollback()  # Rollback on error
                 logger.error(f"Error executing query '{query}': {e}")
+            finally:
+                self.cursor.close()
+
 
     def disconnect(self):
         if self.cursor:
@@ -50,39 +58,64 @@ class Database:
             self.connection.close()
             logger.info("Database connection closed.")
         
-    def fetch(self,query):
+    def fetch(self, query):
         try:
             if self.connection:
                 self.cursor = self.connection.cursor()
                 self.cursor.execute(query)
                 result = self.cursor.fetchall()
                 logger.info(f"Data fetched successfully for query: {query}")
-                self.cursor.close()
-                logger.info(f"Fetched Data:{result}")
                 return result
         except Exception as e:
             logger.error(f"Error fetching data for query '{query}': {e}")
-            return None 
+            return None
+        finally:
+            if self.cursor:
+                self.cursor.close()
+
         
     def insert_data(self, table, data):
         if self.connection:
             try:
-                # Prepare the columns and values for the query dynamically
                 columns = ', '.join(data.keys())
                 values = tuple(data.values())
-                
-                # Create the dynamic INSERT SQL statement
+                update_clause = ', '.join([f"{col} = EXCLUDED.{col}" for col in data.keys()])
+
                 query = f"""
                 INSERT INTO {table} ({columns}) 
                 VALUES ({', '.join(['%s'] * len(values))})
+                ON CONFLICT (dateTime) DO UPDATE SET {update_clause};
                 """
-                
-                # Execute the query
+
                 self.cursor = self.connection.cursor()
                 self.cursor.execute(query, values)
                 self.connection.commit()
-                logger.info(f"Data inserted successfully into {table}: {data}")
-                self.cursor.close()
+                logger.info(f"Data inserted/updated successfully into {table}: {data}")
             except Exception as e:
+                self.connection.rollback()  # Rollback on error
                 logger.error(f"Error inserting data into {table}: {data} - {e}")
-                return None
+            finally:
+                self.cursor.close() 
+
+    # def insert_data(self, table, data):
+    #     if self.connection:
+    #         try:
+    #             # Prepare the columns and values for the query dynamically
+    #             columns = ', '.join(data.keys())
+    #             values = tuple(data.values())
+                
+    #             # Create the dynamic INSERT SQL statement
+    #             query = f"""
+    #             INSERT INTO {table} ({columns}) 
+    #             VALUES ({', '.join(['%s'] * len(values))})
+    #             """
+                
+    #             # Execute the query
+    #             self.cursor = self.connection.cursor()
+    #             self.cursor.execute(query, values)
+    #             self.connection.commit()
+    #             logger.info(f"Data inserted successfully into {table}: {data}")
+    #             self.cursor.close()
+    #         except Exception as e:
+    #             logger.error(f"Error inserting data into {table}: {data} - {e}")
+    #             return None
