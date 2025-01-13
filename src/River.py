@@ -79,7 +79,7 @@ class River:
             forecasted_datetime -= timedelta(minutes=5)
 
         return forecasted_datetime
-    def compute_forecast(self):
+    def compute_and_get_forecast(self):
         self.set_discharge()
         self.set_mean_velocity()
         self.set_time_delay()
@@ -92,6 +92,8 @@ class River:
                 'datetime':forecasted_datetime.strftime('%Y-%m-%d %H:%M'),#Convert Back to String
                 'discharge':self.discharge
             }
+            return self.forecasted_data
+    
         
     def get_forecasted_data(self):
         return self.forecasted_data

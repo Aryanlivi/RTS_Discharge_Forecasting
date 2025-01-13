@@ -1,7 +1,7 @@
 import psycopg2
 import os
 from dotenv import load_dotenv
-from Loggers import *
+from .Loggers import *
 from datetime import datetime
 
 load_dotenv()
