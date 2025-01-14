@@ -12,8 +12,8 @@ def create_tables():
     try:
         Base.metadata.drop_all(engine)
         Base.metadata.create_all(engine)
-        db = SessionLocal()
-        db.execute(text("SET TIMEZONE TO 'UTC';"))
+        # db = SessionLocal()
+        # db.execute(text("SET TIMEZONE TO 'UTC';"))
         print("All tables created successfully.")
     except Exception as e:
         print(f"Error during table creation: {e}")
@@ -38,10 +38,6 @@ class Database:
 
     def insert_or_update(self, model, data):
         try:
-            # Ensure datetime is in UTC before inserting/updating
-            if 'datetime' in data:
-                if data['datetime'].tzinfo is None:  # If the datetime has no timezone info
-                    data['datetime'] = data['datetime'].replace(tzinfo=timezone.utc)  # Set it to UTC
             existing = self.session.query(model).filter_by(datetime=data['datetime']).first()
             if existing:
                 for key, value in data.items():
@@ -83,7 +79,7 @@ class Database:
             if result:
                 logger.info(f"Row found for {model.__tablename__} with datetime: {datetime_value}")
                 # Convert the datetime to UTC if it's not already in UTC
-                datetime_str = result.datetime.astimezone(timezone.utc).strftime('%Y-%m-%d %H:%M:%S') if result.datetime else None
+                datetime_str = result.datetime.strftime('%Y-%m-%d %H:%M:%S') if result.datetime else None
                 return {
                     'datetime': datetime_str,
                     'discharge': result.discharge
@@ -116,26 +112,26 @@ class Database:
         finally:
             self.session.close()
             
-    def fetch_rows_with_utc_time(self, model):
-        try:
-            # Fetch all rows and convert datetime to UTC
-            rows = self.session.query(model).all()
+    # def fetch_rows_with_utc_time(self, model):
+    #     try:
+    #         # Fetch all rows and convert datetime to UTC
+    #         rows = self.session.query(model).all()
 
-            # Convert datetime to UTC for each row
-            rows_with_utc = []
-            for row in rows:
-                if row.datetime:
-                    # Convert the datetime to UTC if it's not already in UTC
-                    utc_datetime = row.datetime.astimezone(timezone.utc)  # Convert to UTC
-                    row.datetime = utc_datetime  # Update the row's datetime to UTC
-                rows_with_utc.append(row)
-            return rows_with_utc
+    #         # Convert datetime to UTC for each row
+    #         rows_with_utc = []
+    #         for row in rows:
+    #             if row.datetime:
+    #                 # Convert the datetime to UTC if it's not already in UTC
+    #                 utc_datetime = row.datetime.astimezone(timezone.utc)  # Convert to UTC
+    #                 row.datetime = utc_datetime  # Update the row's datetime to UTC
+    #             rows_with_utc.append(row)
+    #         return rows_with_utc
 
-        except Exception as e:
-            logger.error(f"Error fetching rows with UTC time for {model.__tablename__}: {e}")
-            return []
-        finally:
-            self.session.close()
+    #     except Exception as e:
+    #         logger.error(f"Error fetching rows with UTC time for {model.__tablename__}: {e}")
+    #         return []
+    #     finally:
+    #         self.session.close()
 
 
     

@@ -78,7 +78,8 @@ class ForecastManager:
     def revisit_and_update_combined_river_forecast(self,galchi_forecast:RiverForecast,budhi_forecast:RiverForecast):
         try:
             # Fetch all rows in siurenitar_table
-            combined_river_rows = self.db.fetch_rows_with_utc_time(ForecastSiurenitarData)
+            
+            combined_river_rows = self.db.session.query(ForecastSiurenitarData)
             for combined_river in combined_river_rows:
                 combined_river_datetime = combined_river.datetime
 
@@ -124,24 +125,24 @@ class ForecastManager:
         print(f"Galchi Forecasted: {galchi_forecast.get_data()}")
         print(f"Budhi Forecasted: {budhi_forecast.get_data()}")
 
-        # #test forecasted:
-        # test1=RiverForecast('Galchi','2025-01-13 21:25',110)
-        # test2=RiverForecast('Budhi','2025-01-13 22:25',290)
+        #test forecasted:
+        test1=RiverForecast('Galchi','2025-01-13 17:20',20)
+        test2=RiverForecast('Budhi','2025-01-13 16:20',10)
         
-        # self.db.insert_or_update(ForecastGalchiToSiurenitar, test1.get_data())
-        # self.db.insert_or_update(ForecastBudhiToSiurenitar, test2.get_data())
+        self.db.insert_or_update(ForecastGalchiToSiurenitar, test1.get_data())
+        self.db.insert_or_update(ForecastBudhiToSiurenitar, test2.get_data())
         
-        # self.compute_combined_forecast(test1,test2)
-        # changed_rows=self.revisit_and_update_combined_river_forecast(test1,test2)
-        # print(changed_rows)
-        # return changed_rows
-        self.db.insert_or_update(ForecastGalchiToSiurenitar, galchi_forecast.get_data())
-        self.db.insert_or_update(ForecastBudhiToSiurenitar, budhi_forecast.get_data())
-        
-        self.compute_combined_forecast(galchi_forecast,budhi_forecast)
-        changed_rows=self.revisit_and_update_combined_river_forecast(galchi_forecast,budhi_forecast)
+        self.compute_combined_forecast(test1,test2)
+        changed_rows=self.revisit_and_update_combined_river_forecast(test1,test2)
         print(changed_rows)
         return changed_rows
+        # self.db.insert_or_update(ForecastGalchiToSiurenitar, galchi_forecast.get_data())
+        # self.db.insert_or_update(ForecastBudhiToSiurenitar, budhi_forecast.get_data())
+        
+        # self.compute_combined_forecast(galchi_forecast,budhi_forecast)
+        # changed_rows=self.revisit_and_update_combined_river_forecast(galchi_forecast,budhi_forecast)
+        # print(changed_rows)
+        # return changed_rows
 
 
     # def post(self,data):
