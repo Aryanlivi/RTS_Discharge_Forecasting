@@ -1,6 +1,5 @@
 from River import River
 from dotenv import load_dotenv
-from Utils import get_river_data
 import os 
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -24,7 +23,7 @@ class ForecastManager:
         self.data = data
         self.db = Database()
         
-    def get_river_data(data, id):
+    def get_river_data(self,data, id):
         try:
             if isinstance(data, list):
                 if not data:  # Check if the list is empty
@@ -115,12 +114,12 @@ class ForecastManager:
         return None
 
     def compute_and_post(self):
-        # galchi_data=self.get_river_data(data=self.data,id=ForecastManager.SocketGalchiId)
-        # budhi_data=self.get_river_data(data=self.data,id=ForecastManager.SocketBudhiId)
+        galchi_data=self.get_river_data(data=self.data,id=ForecastManager.SocketGalchiId)
+        budhi_data=self.get_river_data(data=self.data,id=ForecastManager.SocketBudhiId)
         
         # Retrieve data for Galchi and Budhi rivers (for tests here)
-        galchi_data = {'datetime': '2025-01-13T08:55:00+00:00', 'value': 366.051483154}
-        budhi_data = {'datetime': '2025-01-13T08:55:00+00:00', 'value': 333.470916748}
+        # galchi_data = {'datetime': '2025-01-13T08:55:00+00:00', 'value': 366.051483154}
+        # budhi_data = {'datetime': '2025-01-13T08:55:00+00:00', 'value': 333.470916748}
 
         if not galchi_data or not budhi_data:
             return
@@ -133,24 +132,27 @@ class ForecastManager:
         galchi_forecast = galchi.compute_and_get_forecast()
         budhi_forecast = budhi.compute_and_get_forecast()
 
-        # Output the forecasts
-        print(f"Galchi Forecasted: {galchi_forecast}")
-        print(f"Budhi Forecasted: {budhi_forecast}")
+
+        print(f"Original Galchi:{galchi.get_data()}")
+        print(f"Original Budhi:{galchi.get_data()}")
         print('-------------------------------------------')
+        # Output the forecasts
+        print(f"Galchi Forecasted: {galchi_forecast.get_data()}")
+        print(f"Budhi Forecasted: {budhi_forecast.get_data()}")
+
 
         
-        #test forecasted:
-        test1=RiverForecast('Galchi','2025-01-13 21:25',110)
-        test2=RiverForecast('Budhi','2025-01-13 22:25',290)
+        # #test forecasted:
+        # test1=RiverForecast('Galchi','2025-01-13 21:25',110)
+        # test2=RiverForecast('Budhi','2025-01-13 22:25',290)
+        
         # Connect to the database and insert data
         self.db.connect()
-        self.db.insert_data(galchi_forecast.get_db_table_name(), test1.get_data())
-        self.db.insert_data(budhi_forecast.get_db_table_name(), test2.get_data())
+        self.db.insert_data(galchi_forecast.get_db_table_name(), galchi_forecast.get_data())
+        self.db.insert_data(budhi_forecast.get_db_table_name(), budhi_forecast.get_data())
         
-        self.compute_and_update_combined_river_forecast(test1,test2)
-        self.revisit_and_update_combined_river_forecast(test1,test2)
+        self.compute_and_update_combined_river_forecast(galchi_forecast,budhi_forecast)
+        self.revisit_and_update_combined_river_forecast(galchi_forecast,budhi_forecast)
         self.db.disconnect()
 
-# Run the forecast computation and posting
-forecast_manager = ForecastManager({})
-forecast_manager.compute_and_post()
+

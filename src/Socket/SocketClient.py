@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 import sys
 # Add the parent directory of src to the path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from PostForecast import compute_and_post
+from ForecastManager import ForecastManager
 class SocketClient:
     def __init__(self):
         # Load environment variables
@@ -45,8 +45,9 @@ class SocketClient:
 
     def handle_namespace_event(self, data):
         logging.info(f"Received data from namespace")
-        # Forward the data to data_handler for processing
-        compute_and_post(data)
+        # Run the forecast computation and posting
+        forecast_manager = ForecastManager(data)
+        forecast_manager.compute_and_post()
 
     def disconnect(self):
         logging.info('Socket disconnected')

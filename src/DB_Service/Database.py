@@ -32,7 +32,6 @@ class Database:
                 password=PASSWORD
             )
             logger.info("Database connection established successfully.")
-            print("Connected DB Successfully")
             return self.connection 
         except Exception as e:
             logger.error(f"Error connecting to the database: {e}")
@@ -96,26 +95,3 @@ class Database:
                 logger.error(f"Error inserting data into {table}: {data} - {e}")
             finally:
                 self.cursor.close() 
-
-    # def insert_data(self, table, data):
-    #     if self.connection:
-    #         try:
-    #             # Prepare the columns and values for the query dynamically
-    #             columns = ', '.join(data.keys())
-    #             values = tuple(data.values())
-                
-    #             # Create the dynamic INSERT SQL statement
-    #             query = f"""
-    #             INSERT INTO {table} ({columns}) 
-    #             VALUES ({', '.join(['%s'] * len(values))})
-    #             """
-                
-    #             # Execute the query
-    #             self.cursor = self.connection.cursor()
-    #             self.cursor.execute(query, values)
-    #             self.connection.commit()
-    #             logger.info(f"Data inserted successfully into {table}: {data}")
-    #             self.cursor.close()
-    #         except Exception as e:
-    #             logger.error(f"Error inserting data into {table}: {data} - {e}")
-    #             return None
