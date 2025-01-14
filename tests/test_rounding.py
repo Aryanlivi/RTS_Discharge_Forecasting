@@ -28,12 +28,47 @@ def round_to_nearest_five(forecasted_datetime):
     return forecasted_datetime
 
 
+def round_to_nearest_ten(forecasted_datetime):
+    """
+    Rounds the given time to the nearest 10 minutes (i.e., 00, 10, 20, 30, 40, 50).
+    """
+    print(forecasted_datetime)
+    # Get the number of minutes
+    minutes = forecasted_datetime.minute
+    
+    # Round to nearest 10 minutes
+    rounded_minutes = (minutes // 10) * 10
+    if minutes % 10 >= 5:
+        rounded_minutes += 10
 
-date_time='2025-01-13T16:28:00+00:00'
+    # Handle case where rounding increases minutes past 59 (e.g., 55 -> 00 and increment hour)
+    if rounded_minutes == 60:
+        rounded_minutes = 0
+        forecasted_datetime = forecasted_datetime + timedelta(hours=1)
+    
+    # Replace the datetime with the rounded minutes
+    forecasted_datetime = forecasted_datetime.replace(minute=rounded_minutes, second=0, microsecond=0)
+    return forecasted_datetime
+
+def round_down_to_nearest_ten(forecasted_datetime):
+    """
+    Rounds the given time **down** to the nearest 10 minutes (i.e., 00, 10, 20, 30, 40, 50).
+    """
+    print(forecasted_datetime)
+    # Get the number of minutes
+    minutes = forecasted_datetime.minute
+    
+    # Round down to the nearest 10 minutes
+    rounded_minutes = (minutes // 10) * 10  # Simply discard the remainder
+    
+    # Handle case where rounding to the nearest 10 doesn't overflow
+    forecasted_datetime = forecasted_datetime.replace(minute=rounded_minutes, second=0, microsecond=0)
+    return forecasted_datetime
+date_time='2025-01-13T08:55:00+00:00'
 date_time=datetime.fromisoformat(date_time)
 
 # 18:10
-time_delay=6988.933319445655
+time_delay=10208.21894514675
 forecasted_datetime=date_time+timedelta(seconds=time_delay)
-print(round_to_nearest_five(forecasted_datetime))
+print(round_down_to_nearest_ten(forecasted_datetime))
 

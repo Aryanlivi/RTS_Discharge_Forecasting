@@ -6,7 +6,7 @@ load_dotenv()
 LOG_NAME=os.getenv('log_name')
 
 class Logger:
-    def __init__(self, logger_name=str(LOG_NAME), log_file="DB_Service/logs/app.log"):
+    def __init__(self, logger_name=str(LOG_NAME), log_file="src/DB_Service/logs/app.log"):
         self.log_level=logging.DEBUG
         self.logger = logging.getLogger(logger_name) 
         self.logger.setLevel(self.log_level)
