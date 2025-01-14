@@ -99,8 +99,8 @@ class ForecastManager:
         return None
 
     def compute(self):
-        # galchi_data=self.get_river_data(data=self.data,id=ForecastManager.SocketGalchiId)
-        # budhi_data=self.get_river_data(data=self.data,id=ForecastManager.SocketBudhiId)
+        galchi_data=self.get_river_data(data=self.data,id=ForecastManager.SocketGalchiId)
+        budhi_data=self.get_river_data(data=self.data,id=ForecastManager.SocketBudhiId)
         
         # Retrieve data for Galchi and Budhi rivers (for tests here)
         galchi_data = {'datetime': '2025-01-13T08:55:00+00:00', 'value': 366.051483154}
@@ -118,39 +118,29 @@ class ForecastManager:
         budhi_forecast = budhi.compute_and_get_forecast()
 
 
-        print(f"Original Galchi:{galchi.get_data()}")
-        print(f"Original Budhi:{galchi.get_data()}")
-        print('-------------------------------------------')
-        # Output the forecasts
-        print(f"Galchi Forecasted: {galchi_forecast.get_data()}")
-        print(f"Budhi Forecasted: {budhi_forecast.get_data()}")
+        # print(f"Original Galchi:{galchi.get_data()}")
+        # print(f"Original Budhi:{galchi.get_data()}")
+        # print('-------------------------------------------')
+        # # Output the forecasts
+        # print(f"Galchi Forecasted: {galchi_forecast.get_data()}")
+        # print(f"Budhi Forecasted: {budhi_forecast.get_data()}")
 
         #test forecasted:
-        test1=RiverForecast('Galchi','2025-01-13 17:20',20)
-        test2=RiverForecast('Budhi','2025-01-13 16:20',10)
+        # test1=RiverForecast('Galchi','2025-01-13 17:20',20)
+        # test2=RiverForecast('Budhi','2025-01-13 16:20',10)
         
-        self.db.insert_or_update(ForecastGalchiToSiurenitar, test1.get_data())
-        self.db.insert_or_update(ForecastBudhiToSiurenitar, test2.get_data())
+        self.db.insert_or_update(ForecastGalchiToSiurenitar, galchi_forecast.get_data())
+        self.db.insert_or_update(ForecastBudhiToSiurenitar, budhi_forecast.get_data())
         
-        self.compute_combined_forecast(test1,test2)
-        changed_rows=self.revisit_and_update_combined_river_forecast(test1,test2)
-        print(changed_rows)
+        self.compute_combined_forecast(galchi_forecast,budhi_forecast)
+        changed_rows=self.revisit_and_update_combined_river_forecast(galchi_forecast,budhi_forecast)
         return changed_rows
-        # self.db.insert_or_update(ForecastGalchiToSiurenitar, galchi_forecast.get_data())
-        # self.db.insert_or_update(ForecastBudhiToSiurenitar, budhi_forecast.get_data())
-        
-        # self.compute_combined_forecast(galchi_forecast,budhi_forecast)
-        # changed_rows=self.revisit_and_update_combined_river_forecast(galchi_forecast,budhi_forecast)
-        # print(changed_rows)
-        # return changed_rows
 
 
-    # def post(self,data):
-    #     self.compute()
-    #     api_service=APIService()
-    #     api_service.post_forecast()
+    def post(self):
+        data=self.compute()
+        api_service=APIService()
+        api_service.post_forecast(data)
     
     
-forecast_manager=ForecastManager({})
-forecast_manager.compute()
 

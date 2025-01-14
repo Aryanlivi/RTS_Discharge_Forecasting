@@ -63,21 +63,47 @@ class River:
         return self.time_delay
     
         
+    #FOR NEPALI
+    # def round_down_to_nearest_ten(self,forecasted_datetime):
+    #     """
+    #     Rounds the given time **down** to the nearest 10 minutes (i.e., 00, 10, 20, 30, 40, 50).
+    #     """
+    #     # Get the number of minutes
+    #     minutes = forecasted_datetime.minute
         
-    def round_down_to_nearest_ten(self,forecasted_datetime):
-        """
-        Rounds the given time **down** to the nearest 10 minutes (i.e., 00, 10, 20, 30, 40, 50).
-        """
-        # Get the number of minutes
-        minutes = forecasted_datetime.minute
+    #     # Round down to the nearest 10 minutes
+    #     rounded_minutes = (minutes // 10) * 10  # Simply discard the remainder
         
-        # Round down to the nearest 10 minutes
-        rounded_minutes = (minutes // 10) * 10  # Simply discard the remainder
-        
-        # Handle case where rounding to the nearest 10 doesn't overflow
-        forecasted_datetime = forecasted_datetime.replace(minute=rounded_minutes, second=0, microsecond=0)
-        return forecasted_datetime
+    #     # Handle case where rounding to the nearest 10 doesn't overflow
+    #     forecasted_datetime = forecasted_datetime.replace(minute=rounded_minutes, second=0, microsecond=0)
+    #     return forecasted_datetime
 
+    #FOR UTC 
+    
+    def round_to_nearest_five(self,forecasted_datetime):
+        """
+        Rounds the given time to the nearest 05, 15, 25, etc. with 10-minute gaps.
+        """
+        # print(forecasted_datetime)
+        # Calculate the remainder when minutes is divided by 10
+        remainder = forecasted_datetime.minute % 10
+        # Determine the new minutes based on the remainder
+        if remainder < 5:
+            new_minutes = (forecasted_datetime.minute // 10) * 10 - 5
+        elif remainder == 5:
+            new_minutes = forecasted_datetime.minute
+        else:
+            new_minutes = (forecasted_datetime.minute // 10 + 1) * 10 - 5
+
+        # Handle case where rounding increases minutes past 59
+        hours = forecasted_datetime.hour
+        if new_minutes >= 60:
+            new_minutes -= 60
+            hours = (hours + 1) % 24  # Increment hour and wrap around at 24
+
+        # Adjust the datetime to the rounded minutes
+        forecasted_datetime = forecasted_datetime.replace(hour=hours, minute=new_minutes, second=0, microsecond=0)
+        return forecasted_datetime
 
     def compute_and_get_forecast(self):
         self.set_discharge()
@@ -86,7 +112,7 @@ class River:
         
         if self.time_delay:  
             forecasted_datetime = self.date_time + timedelta(seconds=self.time_delay)
-            forecasted_datetime=self.round_down_to_nearest_ten(forecasted_datetime)
+            forecasted_datetime=self.round_to_nearest_five(forecasted_datetime)
             self.forecasted_data=RiverForecast(self.river_name,forecasted_datetime,self.discharge)
             return self.forecasted_data
     

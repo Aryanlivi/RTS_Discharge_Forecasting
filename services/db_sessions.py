@@ -81,8 +81,8 @@ class Database:
                 # Convert the datetime to UTC if it's not already in UTC
                 datetime_str = result.datetime.strftime('%Y-%m-%d %H:%M:%S') if result.datetime else None
                 return {
-                    'datetime': datetime_str,
-                    'discharge': result.discharge
+                    'time': datetime_str,
+                    'value': result.discharge
                 }
             else:
                 logger.info(f"No row found for {model.__tablename__} with datetime: {datetime_value}")

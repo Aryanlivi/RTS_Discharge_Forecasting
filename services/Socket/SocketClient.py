@@ -46,8 +46,8 @@ class SocketClient:
     def handle_namespace_event(self, data):
         logging.info(f"Received data from namespace")
         # Run the forecast computation and posting
-        forecast_manager = ForecastManager(data)
-        forecast_manager.compute_and_post()
+        forecast_manager=ForecastManager(data)
+        forecast_manager.post()
 
     def disconnect(self):
         logging.info('Socket disconnected')
