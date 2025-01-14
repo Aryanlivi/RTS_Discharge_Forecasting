@@ -102,9 +102,9 @@ class ForecastManager:
         galchi_data=self.get_river_data(data=self.data,id=ForecastManager.SocketGalchiId)
         budhi_data=self.get_river_data(data=self.data,id=ForecastManager.SocketBudhiId)
         
-        # Retrieve data for Galchi and Budhi rivers (for tests here)
-        galchi_data = {'datetime': '2025-01-13T08:55:00+00:00', 'value': 366.051483154}
-        budhi_data = {'datetime': '2025-01-13T08:55:00+00:00', 'value': 333.470916748}
+        # # Retrieve data for Galchi and Budhi rivers (for tests here)
+        # galchi_data = {'datetime': '2025-01-13T08:55:00+00:00', 'value': 366.051483154}
+        # budhi_data = {'datetime': '2025-01-13T08:55:00+00:00', 'value': 333.470916748}
 
         if not galchi_data or not budhi_data:
             return
@@ -139,8 +139,9 @@ class ForecastManager:
 
     def post(self):
         data=self.compute()
-        api_service=APIService()
-        api_service.post_forecast(data)
+        print(data)
+        # api_service=APIService()
+        # api_service.post_forecast(data)
     
     
 
