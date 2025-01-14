@@ -94,9 +94,12 @@ class River:
             new_minutes = forecasted_datetime.minute
         else:
             new_minutes = (forecasted_datetime.minute // 10 + 1) * 10 - 5
-
-        # Handle case where rounding increases minutes past 59
-        hours = forecasted_datetime.hour
+        # Fix edge case where new_minutes becomes negative
+        if new_minutes < 0:
+            new_minutes += 60
+            hours = (forecasted_datetime.hour - 1) % 24  # Decrement hour and wrap around at 0
+        else:
+            hours = forecasted_datetime.hour
         if new_minutes >= 60:
             new_minutes -= 60
             hours = (hours + 1) % 24  # Increment hour and wrap around at 24
