@@ -40,20 +40,6 @@ class ForecastManager:
             return f"Error: {error}"  
 
     
-    # def get_latest_discharge_from_db(self, table_name, datetime):
-    #     try:
-    #         query = f"""
-    #             SELECT dateTime, discharge FROM {table_name}
-    #             WHERE dateTime <= '{datetime}'
-    #             ORDER BY dateTime DESC
-    #             LIMIT 1;
-    #         """
-    #         result = self.db.fetch(query)
-    #         if result:
-    #             return result[0][1]  # Returns the discharge value of the latest row
-    #     except Exception as e:
-    #         print(f"Error fetching rows up to {datetime} from {table_name}: {e}")
-    #     return None 
 
     def compute_combined_forecast(self,galchi_forecast:RiverForecast,budhi_forecast:RiverForecast):
         latest_forecast_datetime= max(galchi_forecast.date_time, budhi_forecast.date_time)
@@ -66,7 +52,7 @@ class ForecastManager:
                 galchi_river_value=galchi_forecast.discharge
                 budhi_river_value=self.db.fetch_latest_discharge(ForecastBudhiToSiurenitar,latest_forecast_datetime)
             elif latest_forecast_datetime==budhi_forecast.date_time:
-                galchi_river_value=self.get_latest_discharge_from_db(ForecastGalchiToSiurenitar,latest_forecast_datetime)
+                galchi_river_value=self.db.fetch_latest_discharge(ForecastGalchiToSiurenitar,latest_forecast_datetime)
                 budhi_river_value=budhi_forecast.discharge
             else:
                 print("ERROR :Latest Date time doesnt match!")
@@ -82,49 +68,34 @@ class ForecastManager:
             }
 
             self.db.insert_or_update(ForecastSiurenitarData,data)
-            # update_query = f"""
-            #     INSERT INTO {ForecastManager.SIURENITAR_TABLE} (dateTime, discharge) 
-            #     VALUES ('{latest_forecast_datetime}', {total_discharge})
-            #     ON CONFLICT (dateTime)
-            #     DO UPDATE SET discharge = EXCLUDED.discharge
-            #     """
-                
-            # self.db.execute_query(update_query)
-            new_data=self.db.get_row_by_datetime(ForecastSiurenitarData,latest_forecast_datetime)
-            self.changed_rows.append(new_data)
+            # new_data=self.db.get_row_by_datetime(ForecastSiurenitarData,latest_forecast_datetime)
+            # self.changed_rows.append(new_data)
+            print("---------------appended the created row to changed_rows-------------")
             return True, latest_forecast_datetime
         except Exception as e:
             print(f"Error updating Suirenitar table: {e}")
             
-    # def revisit_and_update_combined_river_forecast(self,forecast1:RiverForecast,forecast2:RiverForecast):
-    #     try:
-    #         # Fetch all rows in siurenitar_table
-    #         query_combined_river= f"SELECT dateTime FROM {ForecastManager.SIURENITAR_TABLE}"
-    #         combined_river_rows = self.db.fetch(query_combined_river)
-
-            
-    #         for combined_river in combined_river_rows:
-    #             combined_river_datetime = combined_river[0]
+    def revisit_and_update_combined_river_forecast(self,galchi_forecast:RiverForecast,budhi_forecast:RiverForecast):
+        try:
+            # Fetch all rows in siurenitar_table
+            combined_river_rows = self.db.fetch_rows_with_utc_time(ForecastSiurenitarData)
+            for combined_river in combined_river_rows:
+                combined_river_datetime = combined_river.datetime
 
                 
-    #             river1_discharge = self.get_latest_discharge_from_db(forecast1.get_db_table_name(),combined_river_datetime)
-    #             river2_discharge = self.get_latest_discharge_from_db(forecast2.get_db_table_name(),combined_river_datetime)
-    #             # Calculate the total discharge
-    #             total_discharge = river1_discharge + river2_discharge
-    #             # Update the siurenitar_table for this dateTime  
-    #             update_query = f"""
-    #                 UPDATE {ForecastManager.SIURENITAR_TABLE}
-    #                 SET discharge = {total_discharge}
-    #                 WHERE dateTime = '{combined_river_datetime}'
-    #             """
-    #             self.db.execute_query(update_query)
-    #             updated_row = self.db.fetch(update_query)  # Fetch updated row
-    #             if updated_row:
-    #                 self.changed_rows.extend(updated_row)
-    #         return self.changed_rows
-    #     except Exception as e:
-    #         print(f"Error recalculating {ForecastManager.SIURENITAR_TABLE}: {e}")
-    #     return None
+                galchi_discharge = self.db.fetch_latest_discharge(ForecastGalchiToSiurenitar,combined_river_datetime)
+                budhi_discharge = self.db.fetch_latest_discharge(ForecastBudhiToSiurenitar,combined_river_datetime)
+                # Calculate the total discharge
+                total_discharge = galchi_discharge + budhi_discharge
+                self.db.update_discharge(ForecastSiurenitarData,combined_river_datetime,total_discharge)
+                
+                updated_row = self.db.get_row_by_datetime(ForecastSiurenitarData, combined_river_datetime)
+                if updated_row:
+                    self.changed_rows.append(updated_row)  # Add updated row to the list of changed rows
+            return self.changed_rows
+        except Exception as e:
+            print(f"Error recalculating: {e}")
+        return None
 
     def compute(self):
         # galchi_data=self.get_river_data(data=self.data,id=ForecastManager.SocketGalchiId)
@@ -157,15 +128,20 @@ class ForecastManager:
         # test1=RiverForecast('Galchi','2025-01-13 21:25',110)
         # test2=RiverForecast('Budhi','2025-01-13 22:25',290)
         
-        # Connect to the database and insert data
-        # self.db.connect()
+        # self.db.insert_or_update(ForecastGalchiToSiurenitar, test1.get_data())
+        # self.db.insert_or_update(ForecastBudhiToSiurenitar, test2.get_data())
+        
+        # self.compute_combined_forecast(test1,test2)
+        # changed_rows=self.revisit_and_update_combined_river_forecast(test1,test2)
+        # print(changed_rows)
+        # return changed_rows
         self.db.insert_or_update(ForecastGalchiToSiurenitar, galchi_forecast.get_data())
         self.db.insert_or_update(ForecastBudhiToSiurenitar, budhi_forecast.get_data())
         
         self.compute_combined_forecast(galchi_forecast,budhi_forecast)
-        # changed_rows=self.revisit_and_update_combined_river_forecast(galchi_forecast,budhi_forecast)
-        print(self.changed_rows)
-        # self.db.disconnect()
+        changed_rows=self.revisit_and_update_combined_river_forecast(galchi_forecast,budhi_forecast)
+        print(changed_rows)
+        return changed_rows
 
 
     # def post(self,data):

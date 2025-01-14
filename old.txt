@@ -1,0 +1,39 @@
+
+    # def get_latest_discharge_from_db(self, table_name, datetime):
+    #     try:
+    #         query = f"""
+    #             SELECT dateTime, discharge FROM {table_name}
+    #             WHERE dateTime <= '{datetime}'
+    #             ORDER BY dateTime DESC
+    #             LIMIT 1;
+    #         """
+    #         result = self.db.fetch(query)
+    #         if result:
+    #             return result[0][1]  # Returns the discharge value of the latest row
+    #     except Exception as e:
+    #         print(f"Error fetching rows up to {datetime} from {table_name}: {e}")
+    #     return None 
+
+
+
+          # update_query = f"""
+            #     INSERT INTO {ForecastManager.SIURENITAR_TABLE} (dateTime, discharge) 
+            #     VALUES ('{latest_forecast_datetime}', {total_discharge})
+            #     ON CONFLICT (dateTime)
+            #     DO UPDATE SET discharge = EXCLUDED.discharge
+            #     """
+                
+            # self.db.execute_query(update_query)
+
+
+
+
+            query_combined_river= f"SELECT dateTime FROM {ForecastManager.SIURENITAR_TABLE}"
+            combined_river_rows = self.db.fetch(query_combined_river)
+
+               update_query = f"""
+                    UPDATE {ForecastManager.SIURENITAR_TABLE}
+                    SET discharge = {total_discharge}
+                    WHERE dateTime = '{combined_river_datetime}'
+                """
+
