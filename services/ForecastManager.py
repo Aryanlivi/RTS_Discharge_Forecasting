@@ -107,7 +107,7 @@ class ForecastManager:
         # budhi_data = {'datetime': '2025-01-13T08:55:00+00:00', 'value': 333.470916748}
 
         if not galchi_data or not budhi_data:
-            return
+            return [{'time':datetime.now(),'value':-999999}]
 
         # Create river forecast objects
         galchi=River('Galchi',galchi_data['datetime'],galchi_data['value'])
