@@ -59,7 +59,6 @@ class River:
             self.time_delay= float('nan')
         
         self.time_delay = distance / (self.mean_velocity) # in seconds
-        # print(f"time_delay:{self.time_delay}")
     def get_time_delay(self):
         return self.time_delay
     
@@ -96,7 +95,6 @@ class River:
         self.set_time_delay()
         
         if self.time_delay:  
-            print(self.time_delay)
             forecasted_datetime = self.date_time + timedelta(seconds=self.time_delay)
             forecasted_datetime=self.round_to_nearest_five(forecasted_datetime)
             self.forecasted_data=RiverForecast(self.river_name,forecasted_datetime,self.discharge)
