@@ -63,7 +63,7 @@ class River:
         return self.time_delay
     
         
-    #FOR NEPALI
+    # #FOR NEPALI
     # def round_down_to_nearest_ten(self,forecasted_datetime):
     #     """
     #     Rounds the given time **down** to the nearest 10 minutes (i.e., 00, 10, 20, 30, 40, 50).

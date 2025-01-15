@@ -5,7 +5,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from Socket.ApiService import APIService
 # from DB_Service.Database import Database
-from datetime import datetime
+from datetime import datetime,timedelta
 from RiverForecast import RiverForecast
 from services.db_sessions import Database
 from models.forecast_models import ForecastBudhiToSiurenitar,ForecastGalchiToSiurenitar,ForecastSiurenitarData
@@ -100,11 +100,10 @@ class ForecastManager:
 
     def compute(self):
         galchi_data=self.get_river_data(data=self.data,id=ForecastManager.SocketGalchiId)
-        budhi_data=self.get_river_data(data=self.data,id=ForecastManager.SocketBudhiId)
-        
-        # # Retrieve data for Galchi and Budhi rivers (for tests here)
-        # galchi_data = {'datetime': '2025-01-13T08:55:00+00:00', 'value': 366.051483154}
-        # budhi_data = {'datetime': '2025-01-13T08:55:00+00:00', 'value': 333.470916748}
+        budhi_data=self.get_river_data(data=self.data,id=ForecastManager.SocketBudhiId) 
+        # Retrieve data for Galchi and Budhi rivers (for tests here)
+        # galchi_data = {'datetime': '2025-01-13T15:10:00+00:00', 'value': 366.051483154}
+        # budhi_data = {'datetime': '2025-01-13T15:20:00+00:00', 'value': 333.470916748}
 
         if not galchi_data or not budhi_data:
             return [{'time':datetime.now(),'value':-999999}]
@@ -126,8 +125,9 @@ class ForecastManager:
         # print(f"Budhi Forecasted: {budhi_forecast.get_data()}")
 
         #test forecasted:
-        # test1=RiverForecast('Galchi','2025-01-13 17:20',20)
-        # test2=RiverForecast('Budhi','2025-01-13 16:20',10)
+        
+        # test1=RiverForecast('Galchi',datetime.fromisoformat('2025-01-13 18:10'),40)
+        # test2=RiverForecast('Budhi',datetime.fromisoformat('2025-01-13 17:30'),10)
         
         self.db.insert_or_update(ForecastGalchiToSiurenitar, galchi_forecast.get_data())
         self.db.insert_or_update(ForecastBudhiToSiurenitar, budhi_forecast.get_data())
@@ -136,12 +136,29 @@ class ForecastManager:
         changed_rows=self.revisit_and_update_combined_river_forecast(galchi_forecast,budhi_forecast)
         return changed_rows
 
+    
+    
+    def convert_to_nepali_datetime(self,utc_datetime_str):
+        # Parse the UTC datetime string to a datetime object
+        utc_datetime = datetime.strptime(utc_datetime_str, "%Y-%m-%d %H:%M:%S")
+        
+        # Define the NST offset (5 hours and 45 minutes)
+        nst_offset = timedelta(hours=5, minutes=45)
+        
+        # Add the offset to convert to NST
+        nepali_datetime = utc_datetime + nst_offset
+        
+        # Format and return the Nepali datetime
+        return nepali_datetime.strftime("%Y-%m-%d %H:%M:%S")
 
     def post(self):
         data=self.compute()
-        print(data)
-        # api_service=APIService()
-        # api_service.post_forecast(data)
+        # print(f"original data{data}")
+        for ele in data: 
+            ele['time']=self.convert_to_nepali_datetime(ele['time'])
+        # print("------------")
+        # print(data)
+        api_service=APIService()
+        api_service.post_forecast(data)
     
     
-

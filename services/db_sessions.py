@@ -4,7 +4,6 @@ from models.forecast_models import ForecastGalchiToSiurenitar, ForecastBudhiToSi
 import logging
 from sqlalchemy import text
 from datetime import datetime,timezone
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 # Create all tables
@@ -12,8 +11,8 @@ def create_tables():
     try:
         Base.metadata.drop_all(engine)
         Base.metadata.create_all(engine)
-        # db = SessionLocal()
-        # db.execute(text("SET TIMEZONE TO 'UTC';"))
+        db = SessionLocal()
+        db.execute(text("SET TIMEZONE TO 'UTC';"))
         print("All tables created successfully.")
     except Exception as e:
         print(f"Error during table creation: {e}")
@@ -43,8 +42,7 @@ class Database:
                 for key, value in data.items():
                     setattr(existing, key, value)
             else:
-                print("the datetime send for model")
-                print(data['datetime'])
+                data['datetime'] = data['datetime'].replace(tzinfo=None)
                 new_entry = model(**data)
                 self.session.add(new_entry)
 
