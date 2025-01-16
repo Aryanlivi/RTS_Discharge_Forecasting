@@ -1,9 +1,23 @@
+import logging
 import requests
 import os
 from dotenv import load_dotenv
 load_dotenv()
+import sys
+# Add the parent directory of src to the path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 
+
+# Configure logging at the start of your script (if not already configured)
+logging.basicConfig(
+    level=logging.INFO,  # Set logging level
+    format="%(asctime)s - %(levelname)s - %(message)s",  # Log format
+    handlers=[
+        logging.FileHandler("services/Socket/logs/api_log.log"),  # Log to a file
+        logging.StreamHandler()  # Also log to the console
+    ]
+)
 class APIService:
     def __init__(self):
         self.base_url = os.getenv('baseURL')
@@ -24,7 +38,9 @@ class APIService:
         try:
             response = requests.post(url, json=data, headers=headers)
             if response.status_code == 200:
-                print(f"Post Successful with response:{response.json()}")
+                logging.info("Post operation completed successfully.")
+                logging.info(f"Posted data: {data}")
+                logging.info(f"API response: {response}")
                 return response.json(), response.status_code, None
             else:
                 return None, response.status_code, response.text

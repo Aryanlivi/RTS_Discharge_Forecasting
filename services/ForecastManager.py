@@ -70,7 +70,7 @@ class ForecastManager:
             self.db.insert_or_update(ForecastSiurenitarData,data)
             # new_data=self.db.get_row_by_datetime(ForecastSiurenitarData,latest_forecast_datetime)
             # self.changed_rows.append(new_data)
-            print("---------------appended the created row to changed_rows-------------")
+            # print("---------------appended the created row to changed_rows-------------")
             return True, latest_forecast_datetime
         except Exception as e:
             print(f"Error updating Suirenitar table: {e}")
@@ -90,8 +90,6 @@ class ForecastManager:
                 self.db.update_discharge(ForecastSiurenitarData,combined_river_datetime,total_discharge)
                 # Fetch and return all rows after updating
             all_rows =self.db.fetch_all_rows(ForecastSiurenitarData)
-            print(all_rows)
-            print("==============")
             return all_rows
             #     updated_row = self.db.get_row_by_datetime(ForecastSiurenitarData, combined_river_datetime)
             #     if updated_row:
@@ -160,9 +158,9 @@ class ForecastManager:
         # print(f"original data{data}")
         for ele in data: 
             ele['time']=self.convert_to_nepali_datetime(ele['time'])
-        print("------------")
-        print(data)
+        
         api_service=APIService()
         api_service.post_forecast(data)
+        
     
     
