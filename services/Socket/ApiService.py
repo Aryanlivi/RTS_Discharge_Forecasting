@@ -40,7 +40,7 @@ class APIService:
             if response.status_code == 200:
                 logging.info("Post operation completed successfully.")
                 logging.info(f"Posted data: {data}")
-                logging.info(f"API response: {response}")
+                logging.info(f"API response: {response.json()}")
                 return response.json(), response.status_code, None
             else:
                 return None, response.status_code, response.text
