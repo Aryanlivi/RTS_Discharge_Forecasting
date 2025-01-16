@@ -158,7 +158,6 @@ class ForecastManager:
         # print(f"original data{data}")
         for ele in data: 
             ele['time']=self.convert_to_nepali_datetime(ele['time'])
-        
         api_service=APIService()
         api_service.post_forecast(data)
         
