@@ -35,6 +35,33 @@ class Database:
         self.session = SessionLocal()
         
 
+    def fetch_all_rows(self, table_model):
+        """
+        Fetch all rows from the specified table and return as a list of dictionaries.
+
+        Args:
+            session: SQLAlchemy session object.
+            table_model: SQLAlchemy model class representing the table.
+
+        Returns:
+            List of dictionaries containing row data.
+        """
+        try:
+            rows = self.session.query(table_model).all()  # Fetch all rows
+            # Convert each row object into a dictionary of its attributes
+            data = [
+                {
+                    "time" if column.name == "datetime" else column.name: getattr(row, column.name)
+                    for column in table_model.__table__.columns
+                }
+                for row in rows
+            ]
+            return data
+        except Exception as e:
+            print(f"Error fetching rows from {table_model.__tablename__}: {str(e)}")
+            return []
+
+
     def insert_or_update(self, model, data):
         try:
             existing = self.session.query(model).filter_by(datetime=data['datetime']).first()

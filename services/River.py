@@ -39,7 +39,7 @@ class River:
         difference = self.water_level - c
         power=difference**b
         discharge=a*power
-        self.discharge=float(discharge)
+        self.discharge=float(discharge) 
     
     def get_discharge(self):
         return self.discharge
